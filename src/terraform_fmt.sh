@@ -1,15 +1,9 @@
 #!/bin/bash
 
 function terraformFmt {
-  # Eliminate `-recursive` option for Terraform 0.11.x.
-  fmtRecursive="-recursive"
-  if hasPrefix "0.11" "${tfVersion}"; then
-    fmtRecursive=""
-  fi
-
   # Gather the output of `terraform fmt`.
   echo "fmt: info: checking if Terraform files in ${tfWorkingDir} are correctly formatted"
-  fmtOutput=$(terraform fmt -check=true -write=false -diff ${fmtRecursive} ${*} 2>&1)
+  fmtOutput=$(terraform fmt -check=true -write=false -diff ${*} 2>&1)
   fmtExitCode=${?}
 
   # Exit code of 0 indicates success. Print the output and exit.
@@ -33,7 +27,7 @@ function terraformFmt {
   echo "${fmtOutput}"
   echo
   echo "fmt: error: the following files in ${tfWorkingDir} are incorrectly formatted"
-  fmtFileList=$(terraform fmt -check=true -write=false -list ${fmtRecursive})
+  fmtFileList=$(terraform fmt -check=true -write=false -list)
   echo "${fmtFileList}"
   echo
 
@@ -70,7 +64,7 @@ ${fmtComment}
   echo "::set-output name=tf_actions_fmt_written::false"
   if [ "${tfFmtWrite}" == "1" ]; then
     echo "fmt: info: Terraform files in ${tfWorkingDir} will be formatted"
-    terraform fmt -write=true ${fmtRecursive} "${*}"
+    terraform fmt -write=true "${*}"
     fmtExitCode=${?}
     echo "::set-output name=tf_actions_fmt_written::true"
   fi
